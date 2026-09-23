@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>My Bookmarks</title>
+  <style>body{font-family:sans-serif;max-width:600px;margin:40px auto}</style>
+</head>
+<body>
+  <h1>My Bookmarks</h1>
+  <input id="title" placeholder="Title">
+  <input id="url" placeholder="https://...">
+  <button onclick="add()">Add</button>
+  <ul id="list"></ul>
+  <script>
+    const API = "/api/bookmarks";
+    async function load() {
+      const items = await (await fetch(API)).json();
+      document.getElementById("list").innerHTML = items
+        .map(b => `<li>${b.title} — ${b.url}
+                   <button onclick="del(${b.id})">x</button></li>`).join("");
+    }
+    async function add() {
+      const title = document.getElementById("title").value;
+      const url = document.getElementById("url").value;
+      await fetch(API, {method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({title, url})});
+      load();
+    }
+    async function del(id) {
+      await fetch(`${API}/${id}`, {method:"DELETE"});
+      load();
+    }
+    load();
+  </script>
+</body>
+</html>
